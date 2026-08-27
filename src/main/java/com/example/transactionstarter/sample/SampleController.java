@@ -10,6 +10,7 @@ public class SampleController {
 
     @GetMapping("/api/sample")
     public Map<String, String> sample() {
+
         return Map.of("message", "Starter project is running");
     }
 }
