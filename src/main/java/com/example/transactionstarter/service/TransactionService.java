@@ -6,6 +6,8 @@ import com.example.transactionstarter.enums.TransactionStatus;
 import com.example.transactionstarter.repository.TransactionRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class TransactionService {
 
@@ -32,5 +34,17 @@ public class TransactionService {
         transaction.setStatus(TransactionStatus.PENDING);
 
         return transactionRepository.save(transaction);
+    }
+
+    public Transaction getTransactionById(String transactionId) {
+
+        return transactionRepository
+                .findById(transactionId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Transaction not found"));
+    }
+    public List<Transaction> getTransactionsByCustomerId(String customerId) {
+
+        return transactionRepository.findByCustomerId(customerId);
     }
 }

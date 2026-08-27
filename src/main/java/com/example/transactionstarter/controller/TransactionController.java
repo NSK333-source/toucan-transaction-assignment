@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/transactions")
@@ -30,5 +34,20 @@ public class TransactionController {
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(transaction);
+    }
+    @GetMapping("/{transactionId}")
+    public ResponseEntity<Transaction> getTransactionById(
+            @PathVariable String transactionId) {
+
+        Transaction transaction =
+                transactionService.getTransactionById(transactionId);
+
+        return ResponseEntity.ok(transaction);
+    }
+    @GetMapping("/customer/{customerId}")
+    public List<Transaction> getTransactionsByCustomerId(
+            @PathVariable String customerId) {
+
+        return transactionService.getTransactionsByCustomerId(customerId);
     }
 }
