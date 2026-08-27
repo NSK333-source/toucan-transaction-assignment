@@ -1,6 +1,7 @@
 package com.example.transactionstarter.service;
 
 import com.example.transactionstarter.dto.CreateTransactionRequest;
+import com.example.transactionstarter.dto.UpdateTransactionStatusRequest;
 import com.example.transactionstarter.entity.Transaction;
 import com.example.transactionstarter.enums.TransactionStatus;
 import com.example.transactionstarter.repository.TransactionRepository;
@@ -31,6 +32,7 @@ public class TransactionService {
         transaction.setCurrency(request.getCurrency());
         transaction.setTransactionType(request.getTransactionType());
 
+        // Every new transaction starts as PENDING
         transaction.setStatus(TransactionStatus.PENDING);
 
         return transactionRepository.save(transaction);
@@ -43,8 +45,53 @@ public class TransactionService {
                 .orElseThrow(() ->
                         new IllegalArgumentException("Transaction not found"));
     }
+
     public List<Transaction> getTransactionsByCustomerId(String customerId) {
 
         return transactionRepository.findByCustomerId(customerId);
+    }
+
+    public Transaction updateTransactionStatus(
+            String transactionId,
+            UpdateTransactionStatusRequest request) {
+
+        Transaction transaction = transactionRepository
+                .findById(transactionId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("Transaction not found"));
+
+        TransactionStatus currentStatus = transaction.getStatus();
+        TransactionStatus newStatus = request.getStatus();
+
+        if (!isValidStatusTransition(currentStatus, newStatus)) {
+            throw new IllegalArgumentException(
+                    "Invalid status transition from "
+                            + currentStatus
+                            + " to "
+                            + newStatus
+            );
+        }
+
+        transaction.setStatus(newStatus);
+
+        return transactionRepository.save(transaction);
+    }
+
+    private boolean isValidStatusTransition(
+            TransactionStatus currentStatus,
+            TransactionStatus newStatus) {
+
+        return switch (currentStatus) {
+
+            case PENDING ->
+                    newStatus == TransactionStatus.PROCESSING
+                            || newStatus == TransactionStatus.CANCELLED;
+
+            case PROCESSING ->
+                    newStatus == TransactionStatus.COMPLETED
+                            || newStatus == TransactionStatus.FAILED;
+
+            case COMPLETED, FAILED, CANCELLED -> false;
+        };
     }
 }

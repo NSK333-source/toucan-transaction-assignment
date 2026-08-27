@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import com.example.transactionstarter.dto.UpdateTransactionStatusRequest;
+import org.springframework.web.bind.annotation.PatchMapping;
 
 import java.util.List;
 
@@ -49,5 +51,15 @@ public class TransactionController {
             @PathVariable String customerId) {
 
         return transactionService.getTransactionsByCustomerId(customerId);
+    }
+    @PatchMapping("/{transactionId}/status")
+    public Transaction updateTransactionStatus(
+            @PathVariable String transactionId,
+            @RequestBody UpdateTransactionStatusRequest request) {
+
+        return transactionService.updateTransactionStatus(
+                transactionId,
+                request
+        );
     }
 }
