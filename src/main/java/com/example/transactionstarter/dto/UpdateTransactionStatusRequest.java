@@ -1,9 +1,11 @@
 package com.example.transactionstarter.dto;
 
 import com.example.transactionstarter.enums.TransactionStatus;
+import jakarta.validation.constraints.NotNull;
 
 public class UpdateTransactionStatusRequest {
 
+    @NotNull(message = "Status is required")
     private TransactionStatus status;
 
     public TransactionStatus getStatus() {

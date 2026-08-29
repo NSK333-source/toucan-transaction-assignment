@@ -13,6 +13,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -34,10 +35,11 @@ class TransactionStarterApplicationTests {
 //    }
 
     @Test
-    void shouldReturnBadRequestForNonExistingTransaction() throws Exception {
+    void shouldReturnNotFoundForNonExistingTransaction() throws Exception {
 
         mockMvc.perform(get("/api/transactions/INVALID-001"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Transaction not found"));
     }
 
     @Test
@@ -148,4 +150,35 @@ class TransactionStarterApplicationTests {
                 .andExpect(jsonPath("$[1].customerId")
                         .value("CUST-TEST-001"));
     }
+    @Test
+    void shouldUpdateTransactionStatusSuccessfully() throws Exception {
+
+        String createRequest = """
+            {
+                "transactionId": "TXN-STATUS-001",
+                "customerId": "CUST-STATUS-001",
+                "amount": 500.00,
+                "currency": "INR",
+                "transactionType": "PAYMENT"
+            }
+            """;
+
+        mockMvc.perform(post("/api/transactions")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(createRequest))
+                .andExpect(status().isCreated());
+
+        String statusRequest = """
+            {
+                "status": "PROCESSING"
+            }
+            """;
+
+        mockMvc.perform(patch("/api/transactions/TXN-STATUS-001/status")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(statusRequest))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("PROCESSING"));
+    }
+
 }

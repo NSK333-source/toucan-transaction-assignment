@@ -58,7 +58,7 @@ public class TransactionController {
     @PatchMapping("/{transactionId}/status")
     public Transaction updateTransactionStatus(
             @PathVariable String transactionId,
-            @RequestBody UpdateTransactionStatusRequest request) {
+            @Valid @RequestBody UpdateTransactionStatusRequest request) {
 
         return transactionService.updateTransactionStatus(
                 transactionId,
